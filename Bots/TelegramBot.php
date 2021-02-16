@@ -3,6 +3,8 @@
 namespace Bots;
 
 use GuzzleHttp\Client;
+use Bots\DiscordBot;
+use Bots\Translate;
 
 class TelegramBot
 {
@@ -70,8 +72,6 @@ class TelegramBot
             ]
         ]);
 
-        file_put_contents('log.txt', print_r($command,1), FILE_APPEND);
-
         switch ($command['message']['text'])
         {
             case 'го': case '/go@CamunityBot': case 'Сбор!':
@@ -108,11 +108,11 @@ class TelegramBot
                 //$discord = new DiscordBot($_ENV['DISCORD_BOT_KEY']);
                 //error_log("База данных Oracle недоступна!", 0);
                 //$member = $discord->getOnlineUsers();
-                //$discord = new \Bots\DiscordBot('ODA5NDg4NjQ3NjQzNDYzNzEy.YCV1DQ.Aw_SaZSD8H9LHwNM8zcjoyMYgwI');
-                //$par = $discord->getOnlineUsers();
+                $discord = new DiscordBot('ODA5NDg4NjQ3NjQzNDYzNzEy.YCV1DQ.Aw_SaZSD8H9LHwNM8zcjoyMYgwI');
+                $par = $discord->getOnlineUsers();
                 $params = [
                     'chat_id' => $this->chatID,
-                    'text' => 'dd',
+                    'text' => $par,
                     'reply_markup' => $remove_keyboard,
                 ];
                 $this->client->request('POST', $this->apiUrl . '/sendMessage', array('query' => $params));
@@ -123,16 +123,9 @@ class TelegramBot
                 $this->client->request('POST', $this->apiUrl . '/sendMessage', array('query' => $params));
                 break;
 
-            case '/translate@CamunityBot':
-                file_put_contents('log.txt', print_r('/translate@CamunityBot',1), FILE_APPEND);
-                $translate = new Translate();
-                $res = $translate->translate('hello');
-                $params = [
-                    'chat_id' => $this->chatID,
-                    'text' => $res,
-                ];
-                $this->client->request('POST', $this->apiUrl . '/sendMessage', array('query' => $params));
-                break;
+            case '/translate':
+
+
 
             default:
                 break;

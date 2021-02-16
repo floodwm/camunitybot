@@ -15,7 +15,7 @@ class DiscordBot
 
     public function __construct($token)
     {
-        $this->discord = new \Discord\Discord([
+        $this->discord = new Discord([
             'token' => $token,
             'loadAllMembers' => true,
             'intents' => [
