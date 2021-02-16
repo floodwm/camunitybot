@@ -13,3 +13,4 @@ $env->load();
 $bot = new TelegramBot($_ENV['TG_CHAT_ID'], $_ENV['TG_API_KEY']);
 //$bot->sendMessage('opa');
 $bot->apiCommandResponse($data);
+maksim loh 
