@@ -1,23 +1,24 @@
 <?php
 
+
 namespace Http;
 
-use GuzzleHttp\Client;
 
 class http
 {
-    public $apiUrl;
+    public $netDelay = 1;
+    public $netTimeout = 10;
+    public $netConnectTimeout = 5;
+    private $ch;
 
-    public function __construct()
+    public function request($method, $apiUrl, $params = [], $options = [])
     {
-        $this->client = new Client();
-    }
-
-    public function request($method, $url, $params)
-    {
-
+        $this->ch = curl_init();
+        $options += [
+            'http_method' => 'POST',
+            'timeout' => $this->netTimeout,
+        ];
         $params_arr = [];
-
         foreach ($params as $key => &$val) {
             if (!is_numeric($val) && !is_string($val)) {
                 $val = json_encode($val);
@@ -27,10 +28,40 @@ class http
 
         $query_string = implode('&', $params_arr);
 
-        $apiUrl = $url . '/' . $method;
+        $url = $apiUrl . '/' . $method;
 
-        $res = $this->client->request('POST', $apiUrl, $params_arr);
+        if ($options['http_method'] === 'POST') {
+            curl_setopt($this->ch, CURLOPT_SAFE_UPLOAD, false);
+            curl_setopt($this->ch, CURLOPT_POST, true);
+            curl_setopt($this->ch, CURLOPT_POSTFIELDS, $query_string);
+        } else {
+            $url .= ($query_string ? '?' . $query_string : '');
+            curl_setopt($this->ch, CURLOPT_HTTPGET, true);
+        }
+
+        $connect_timeout = $this->netConnectTimeout;
+        $timeout = $options['timeout'] ?: $this->netTimeout;
+
+        curl_setopt($this->ch, CURLOPT_URL, $url);
+        curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($this->ch, CURLOPT_CONNECTTIMEOUT, $connect_timeout);
+        curl_setopt($this->ch, CURLOPT_TIMEOUT, $timeout);
+
+        $response_str = curl_exec($this->ch);
+        $errno = curl_errno($this->ch);
+        $http_code = intval(curl_getinfo($this->ch, CURLINFO_HTTP_CODE));
+
+        if ($http_code == 401) {
+            throw new \Exception('Invalid access token provided');
+        } else {
+            if ($http_code >= 500 || $errno) {
+                sleep($this->netDelay);
+                if ($this->netDelay < 30) {
+                    $this->netDelay *= 2;
+                }
+            }
+        }
+
+        return json_decode($response_str, true);
     }
-
-
 }
