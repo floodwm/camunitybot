@@ -1,0 +1,25 @@
+{
+    "name": "flood/camunitybot",
+    "description": "bot",
+    "type": "project",
+    "authors": [
+        {
+            "name": "FLooD FLooDov",
+            "email": "floodwm@gmail.com"
+        }
+    ],
+    "require": {
+        "vlucas/phpdotenv": "^5.3",
+        "team-reflex/discord-php": "^5.1",
+        "guzzlehttp/guzzle": "^7.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Bots\\": "bots",
+            "Http\\": "http"
+        },
+        "files": [
+            ".env"
+        ]
+    }
+}
